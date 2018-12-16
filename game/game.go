@@ -42,6 +42,22 @@ func Start() State {
 	deck := GenDeck()
 	Shuffle(deck)
 
+	fmt.Println(`
+Welcome! 
+
+To select cards, use your keyboard
+
+q w e r ...
+a s d f ...
+z x c v ...
+
+Try and get the most cards that make sets!
+
+Press ESC to exit
+
+`)
+	term.PollEvent()
+
 	// Start out with 12 cards on the field
 	return State{
 		field: [][]*Card{
