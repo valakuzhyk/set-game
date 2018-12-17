@@ -6,12 +6,18 @@ import (
 	term "github.com/nsf/termbox-go"
 )
 
+// CardIdx is used to represent a card on the field.
+type CardIdx struct {
+	Row    int
+	Column int
+}
+
 // State represents the current state of the game
 type State struct {
 	field [][]*Card
 	deck  []*Card
 
-	selected []int
+	selected []CardIdx
 
 	score int
 }
@@ -82,7 +88,7 @@ func (s State) RenderCards() {
 }
 
 // Select chooses a card
-func (s *State) Select(idx int) {
+func (s *State) Select(idx CardIdx) {
 	for i, val := range s.selected {
 		if val == idx {
 			s.selected = append(s.selected[:i], s.selected[i+1:]...)
@@ -98,19 +104,19 @@ func (s *State) Select(idx int) {
 	if s.CheckSet(s.selected[0], s.selected[1], s.selected[2]) {
 		s.score++
 		s.drawNewCard(s.selected...)
-		s.selected = []int{}
+		s.selected = []CardIdx{}
 		s.RenderCards()
 		fmt.Println("Congrats! You got a set")
 	} else {
 		s.RenderCards()
 		fmt.Println("That's not a set :|")
-		s.selected = []int{}
+		s.selected = []CardIdx{}
 	}
 }
 
 // CheckSet returns whether or not the cards at the specified indices make up a set.
 // If so, they are removed, and enough cards are added to put the field back to 12 again (if possible)
-func (s State) CheckSet(i1, i2, i3 int) bool {
+func (s State) CheckSet(i1, i2, i3 CardIdx) bool {
 	if !IsSet(s.getCard(i1), s.getCard(i2), s.getCard(i3)) {
 		return false
 	}
@@ -127,9 +133,9 @@ func (s State) HasSet() bool {
 }
 
 // draws new cards at the selected indices, if possible.
-func (s *State) drawNewCard(indices ...int) {
+func (s *State) drawNewCard(indices ...CardIdx) {
 	for _, idx := range indices {
-		row, col := idx2RowCol(idx)
+		row, col := idx.Row, idx.Column
 		if len(s.deck) == 0 {
 			s.field[row] = append(s.field[row][:col], s.field[row][col+1:]...)
 			return
@@ -140,11 +146,6 @@ func (s *State) drawNewCard(indices ...int) {
 	}
 }
 
-func (s State) getCard(idx int) *Card {
-	row, col := idx2RowCol(idx)
-	return s.field[row][col]
-}
-
-func idx2RowCol(idx int) (int, int) {
-	return idx % 3, idx / 3
+func (s State) getCard(idx CardIdx) *Card {
+	return s.field[idx.Row][idx.Column]
 }

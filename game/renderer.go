@@ -8,7 +8,7 @@ import (
 
 type renderer struct {
 	cards    [][]*Card
-	selected []int
+	selected []CardIdx
 }
 
 // CardPrinter returns a string representing cards
@@ -17,7 +17,7 @@ type CardPrinter interface {
 }
 
 // CreateCardPrinter creates a renderer for the command line
-func CreateCardPrinter(cards [][]*Card, selected []int) CardPrinter {
+func CreateCardPrinter(cards [][]*Card, selected []CardIdx) CardPrinter {
 	if len(cards) != 3 {
 		logrus.Fatal("Cards should always be a multiple of three")
 	}

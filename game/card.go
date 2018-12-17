@@ -46,18 +46,24 @@ func Shuffle(cards []*Card) {
 	}
 }
 
-// HasSet returns true if three cards make a set within the cards given.
+// HasSet returns true if a set exists among the cards given
 func HasSet(cards []*Card) bool {
+	return len(GetSet(cards)) > 0
+}
+
+// GetSet returns three cards that make a set within the cards given, if a set exists.
+// Otherwise, no indices are returned
+func GetSet(cards []*Card) []int {
 	for i, ci := range cards {
 		for j, cj := range cards[i+1:] {
-			for _, ck := range cards[j+1:] {
+			for k, ck := range cards[j+1:] {
 				if IsSet(ci, cj, ck) {
-					return true
+					return []int{i, j, k}
 				}
 			}
 		}
 	}
-	return false
+	return []int{}
 }
 
 // IsSet returns whether 3 cards compromise a set

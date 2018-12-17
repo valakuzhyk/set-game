@@ -7,17 +7,17 @@ import (
 	"github.com/valakuzhyk/set-game/game"
 )
 
-var enableGodMode = true
+var enableGodMode = false
 
 // func reset() {
 // 	term.Sync() // cosmestic purpose
 // }
 
-var keyMap = map[string]int{
-	"q": 0, "a": 1, "z": 2,
-	"w": 3, "s": 4, "x": 5,
-	"e": 6, "d": 7, "c": 8,
-	"r": 9, "f": 10, "v": 11,
+var keyMap = map[string]game.CardIdx{
+	"q": game.CardIdx{Row: 0, Column: 0}, "a": game.CardIdx{Row: 1, Column: 0}, "z": game.CardIdx{Row: 2, Column: 0},
+	"w": game.CardIdx{Row: 0, Column: 1}, "s": game.CardIdx{Row: 1, Column: 1}, "x": game.CardIdx{Row: 2, Column: 1},
+	"e": game.CardIdx{Row: 0, Column: 2}, "d": game.CardIdx{Row: 1, Column: 2}, "c": game.CardIdx{Row: 2, Column: 2},
+	"r": game.CardIdx{Row: 0, Column: 3}, "f": game.CardIdx{Row: 1, Column: 3}, "v": game.CardIdx{Row: 2, Column: 3},
 }
 
 func main() {

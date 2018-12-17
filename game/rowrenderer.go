@@ -9,7 +9,7 @@ import (
 
 type rowRenderer struct {
 	row      int
-	selected []int
+	selected []CardIdx
 }
 
 func (r rowRenderer) getNthLine(cards []*Card, n int) string {
@@ -88,8 +88,7 @@ func (r rowRenderer) getCardLine(card *Card) string {
 
 func (r rowRenderer) isSelected(col int) bool {
 	for _, selectedIdx := range r.selected {
-		selectedRow, selectedCol := idx2RowCol(selectedIdx)
-		if selectedRow == r.row && selectedCol == col {
+		if selectedIdx.Row == r.row && selectedIdx.Column == col {
 			return true
 		}
 	}

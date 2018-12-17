@@ -9,11 +9,11 @@ func TestState_drawNewCard(t *testing.T) {
 	type fields struct {
 		field    [][]*Card
 		deck     []*Card
-		selected []int
+		selected []CardIdx
 		score    int
 	}
 	type args struct {
-		indices []int
+		indices []CardIdx
 	}
 	type want struct {
 		field [][]*Card
@@ -35,7 +35,7 @@ func TestState_drawNewCard(t *testing.T) {
 				},
 				deck: []*Card{{1, 1, 1, 1}, {2, 2, 2, 2}},
 			},
-			args{[]int{1, 8}},
+			args{[]CardIdx{{1, 0}, {2, 2}}},
 			want{
 				field: [][]*Card{
 					{{0, 0, 0, 0}, {0, 0, 0, 1}, {0, 0, 0, 2}},
@@ -55,7 +55,7 @@ func TestState_drawNewCard(t *testing.T) {
 				},
 				deck: []*Card{{1, 1, 1, 1}, {2, 2, 2, 2}},
 			},
-			args{[]int{1, 8, 3}},
+			args{[]CardIdx{{1, 0}, {2, 2}, {0, 1}}},
 			want{
 				field: [][]*Card{
 					{{0, 0, 0, 0}, {0, 0, 0, 2}},
