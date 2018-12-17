@@ -55,8 +55,10 @@ func HasSet(cards []*Card) bool {
 // Otherwise, no indices are returned
 func GetSet(cards []*Card) []int {
 	for i, ci := range cards {
-		for j, cj := range cards[i+1:] {
-			for k, ck := range cards[j+1:] {
+		for j := i + 1; j < len(cards); j++ {
+			cj := cards[j]
+			for k := i + 1; k < len(cards); k++ {
+				ck := cards[k]
 				if IsSet(ci, cj, ck) {
 					return []int{i, j, k}
 				}

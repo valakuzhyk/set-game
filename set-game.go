@@ -35,15 +35,17 @@ func main() {
 		}
 
 		if enableGodMode {
-			if string(ev.Ch) == "1" {
+			switch string(ev.Ch) {
+			case "1":
 				fmt.Println(state)
-			}
-			if string(ev.Ch) == "2" {
+			case "2":
 				if state.HasSet() {
 					fmt.Println("There is a set present")
 				} else {
 					fmt.Println("There is no set present :O")
 				}
+			case "3":
+				fmt.Println(state.GetSet())
 			}
 		}
 

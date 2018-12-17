@@ -125,11 +125,33 @@ func (s State) CheckSet(i1, i2, i3 CardIdx) bool {
 
 // HasSet returns true if the field has a set
 func (s State) HasSet() bool {
+	return len(s.GetSet()) > 0
+}
+
+// GetSet returns a slice of indices representing a set of cards if a set exists in the field.
+func (s State) GetSet() []CardIdx {
 	cards := []*Card{}
 	for _, row := range s.field {
 		cards = append(cards, row...)
 	}
-	return HasSet(cards)
+	indices := GetSet(cards)
+
+	cardIndices := []CardIdx{}
+
+outerLoop:
+	for _, idx := range indices {
+		currentIdx := 0
+		for row, cardsInRow := range s.field {
+			for col := range cardsInRow {
+				if currentIdx == idx {
+					cardIndices = append(cardIndices, CardIdx{Row: row, Column: col})
+					continue outerLoop
+				}
+				currentIdx++
+			}
+		}
+	}
+	return cardIndices
 }
 
 // draws new cards at the selected indices, if possible.
