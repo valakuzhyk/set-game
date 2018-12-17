@@ -65,6 +65,26 @@ func TestState_drawNewCard(t *testing.T) {
 				deck: []*Card{},
 			},
 		},
+		{
+			"Multiple Cards missing",
+			fields{
+				field: [][]*Card{
+					{{0, 0, 0, 0}, {0, 0, 0, 1}, {0, 0, 0, 2}},
+					{{1, 0, 0, 0}, {1, 0, 0, 1}, {1, 0, 0, 2}},
+					{{2, 0, 0, 0}, {2, 0, 0, 1}, {2, 0, 0, 2}},
+				},
+				deck: []*Card{},
+			},
+			args{[]CardIdx{{1, 0}, {2, 2}, {0, 1}}},
+			want{
+				field: [][]*Card{
+					{{0, 0, 0, 0}, {0, 0, 0, 2}},
+					{{1, 0, 0, 1}, {1, 0, 0, 2}},
+					{{2, 0, 0, 0}, {2, 0, 0, 1}},
+				},
+				deck: []*Card{},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -85,6 +85,12 @@ func (s State) RenderCards() {
 	term.Sync()
 	cardPrinter := CreateCardPrinter(s.field, s.selected)
 	cardPrinter.PrintCardString()
+	fmt.Printf("Your score: %d\n", s.score)
+}
+
+// ClearSelections removes all selections.
+func (s *State) ClearSelections() {
+	s.selected = []CardIdx{}
 }
 
 // Select chooses a card
@@ -160,7 +166,7 @@ func (s *State) drawNewCard(indices ...CardIdx) {
 		row, col := idx.Row, idx.Column
 		if len(s.deck) == 0 {
 			s.field[row] = append(s.field[row][:col], s.field[row][col+1:]...)
-			return
+			continue
 		}
 		newCard := s.deck[0]
 		s.deck = s.deck[1:]

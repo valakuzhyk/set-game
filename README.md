@@ -11,8 +11,10 @@ To play, "run set-game.go"
 
 
 Features to implement
-  - Make more robust interface
   - More god mode options
+    - Give hint
+  - Start new game
+  - draw 3 more cards
   - Performance stats
   - Recording results
   - Multiplayer???

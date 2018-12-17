@@ -46,6 +46,12 @@ func main() {
 				}
 			case "3":
 				fmt.Println(state.GetSet())
+			case "4":
+				state.ClearSelections()
+				for _, selection := range state.GetSet() {
+					state.Select(selection)
+				}
+				fmt.Println("You lazy bum...")
 			}
 		}
 
