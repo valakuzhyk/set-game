@@ -58,6 +58,7 @@ a s d f ...
 z x c v ...
 
 Try and get the most cards that make sets!
+If you can't find a set, press spacebar to get more cards on the field.
 
 Press ESC to exit
 
@@ -67,9 +68,9 @@ Press ESC to exit
 	// Start out with 12 cards on the field
 	return State{
 		field: [][]*Card{
-			deck[:4],
-			deck[4:8],
-			deck[8:12],
+			append([]*Card{}, deck[:4]...),
+			append([]*Card{}, deck[4:8]...),
+			append([]*Card{}, deck[8:12]...),
 		},
 		deck: deck[12:],
 	}
@@ -91,6 +92,20 @@ func (s State) RenderCards() {
 // ClearSelections removes all selections.
 func (s *State) ClearSelections() {
 	s.selected = []CardIdx{}
+}
+
+// AddColumn adds a card to each row, creating a new column.
+func (s *State) AddColumn() {
+	for i := 0; i < 3; i++ {
+		if len(s.deck) == 0 {
+			break
+		}
+
+		s.field[i] = append(s.field[i], s.deck[0])
+		s.deck = s.deck[1:]
+	}
+	s.RenderCards()
+	return
 }
 
 // Select chooses a card

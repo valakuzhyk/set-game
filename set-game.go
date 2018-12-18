@@ -18,6 +18,7 @@ var keyMap = map[string]game.CardIdx{
 	"w": game.CardIdx{Row: 0, Column: 1}, "s": game.CardIdx{Row: 1, Column: 1}, "x": game.CardIdx{Row: 2, Column: 1},
 	"e": game.CardIdx{Row: 0, Column: 2}, "d": game.CardIdx{Row: 1, Column: 2}, "c": game.CardIdx{Row: 2, Column: 2},
 	"r": game.CardIdx{Row: 0, Column: 3}, "f": game.CardIdx{Row: 1, Column: 3}, "v": game.CardIdx{Row: 2, Column: 3},
+	"t": game.CardIdx{Row: 0, Column: 4}, "g": game.CardIdx{Row: 1, Column: 4}, "b": game.CardIdx{Row: 2, Column: 4},
 }
 
 func main() {
@@ -32,6 +33,9 @@ func main() {
 		}
 		if idx, ok := keyMap[string(ev.Ch)]; ok {
 			state.Select(idx)
+		}
+		if ev.Key == term.KeySpace {
+			state.AddColumn()
 		}
 
 		if enableGodMode {
