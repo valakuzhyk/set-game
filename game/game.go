@@ -60,7 +60,9 @@ z x c v ...
 Try and get the most cards that make sets!
 If you can't find a set, press spacebar to get more cards on the field.
 
-Press ESC to exit
+Press ESC to exit.
+
+Press any other key to continue.
 
 `)
 	term.PollEvent()
