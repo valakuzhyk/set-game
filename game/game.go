@@ -14,7 +14,7 @@ type CardIdx struct {
 
 // State represents the current state of the game
 type State struct {
-	field [][]*Card
+	field Field
 	deck  []*Card
 
 	selected []CardIdx
@@ -26,18 +26,24 @@ type State struct {
 
 func (s State) String() string {
 	output := fmt.Sprintln("Field: ")
-	for _, row := range s.field {
-		for _, card := range row {
-			output += fmt.Sprintf("%+v", card)
-		}
-		output += "\n"
-	}
-	output += "\n"
+	output += s.field.String() + "\n"
 
 	output += fmt.Sprintf("Num cards in deck: %d\n", len(s.deck))
 	output += fmt.Sprintf("Selected: %v\n", s.selected)
 	output += fmt.Sprintf("Score: %d\n", s.score)
 	return output
+}
+
+func createGame() State {
+	deck := GenDeck()
+	Shuffle(deck)
+
+	// Start out with 12 cards on the field
+	return State{
+		field:          CreateField(deck[:12]),
+		deck:           deck[12:],
+		godModeEnabled: false,
+	}
 }
 
 // Start creates a new game state to play with.
@@ -46,9 +52,6 @@ func Start() State {
 	if err != nil {
 		panic(err)
 	}
-
-	deck := GenDeck()
-	Shuffle(deck)
 
 	fmt.Println(`
 Welcome! 
@@ -69,22 +72,7 @@ Press any other key to continue.
 `)
 	term.PollEvent()
 
-	// Start out with 12 cards on the field
-	return State{
-		field:          createField(deck[:12]),
-		deck:           deck[12:],
-		godModeEnabled: false,
-	}
-}
-
-func createField(cards []*Card) [][]*Card {
-	field := make([][]*Card, 3)
-	for i, card := range cards {
-		row := i % 3
-		field[row] = append(field[row], card)
-
-	}
-	return field
+	return createGame()
 }
 
 // WaitForKey returns an event representing the key press
@@ -92,6 +80,7 @@ func (s State) WaitForKey() term.Event {
 	return term.PollEvent()
 }
 
+var minColumns = 4
 var maxColumns = 6
 var keyMap = map[string]CardIdx{
 	"q": CardIdx{Row: 0, Column: 0}, "a": CardIdx{Row: 1, Column: 0}, "z": CardIdx{Row: 2, Column: 0},
@@ -110,7 +99,7 @@ func (s *State) HandleKeyPress(ev term.Event) {
 		}
 	}
 	if ev.Key == term.KeySpace {
-		if s.numColumns() < maxColumns {
+		if s.field.NumColumns() < maxColumns {
 			s.AddColumn()
 		} else {
 			s.RenderCards()
@@ -164,21 +153,10 @@ func (s *State) AddColumn() {
 			break
 		}
 
-		s.field[i] = append(s.field[i], s.deck[0])
-		s.deck = s.deck[1:]
+		s.field[i] = append(s.field[i], Draw(&s.deck))
 	}
 	s.RenderCards()
 	return
-}
-
-func (s State) numColumns() int {
-	numColumns := 0
-	for _, row := range s.field {
-		if len(row) > numColumns {
-			numColumns = len(row)
-		}
-	}
-	return numColumns
 }
 
 // Select chooses a card
@@ -256,27 +234,17 @@ outerLoop:
 // draws new cards at the selected indices, if possible.
 func (s *State) drawNewCard(indices ...CardIdx) {
 	for _, idx := range indices {
-		row, col := idx.Row, idx.Column
-		if len(s.deck) == 0 || s.numColumns() > 4 {
-			s.field[row] = append(s.field[row][:col], s.field[row][col+1:]...)
+		if s.field.NumColumns() > minColumns {
+			s.field.ReplaceCardAt(idx, nil)
 			continue
 		}
-		newCard := s.deck[0]
-		s.deck = s.deck[1:]
-		s.field[row][col] = newCard
+
+		newCard := Draw(&s.deck)
+		s.field.ReplaceCardAt(idx, newCard)
 	}
 	if len(s.field[0]) != len(s.field[1]) || len(s.field[1]) != len(s.field[2]) {
-		s.redistributeCards()
+		s.field.RedistributeCards()
 	}
-}
-
-func (s *State) redistributeCards() {
-	cards := []*Card{}
-	for _, row := range s.field {
-		cards = append(cards, row...)
-	}
-
-	s.field = createField(cards)
 }
 
 func (s State) getCard(idx CardIdx) *Card {

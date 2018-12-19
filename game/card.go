@@ -36,6 +36,17 @@ func GenDeck() []*Card {
 	return deck
 }
 
+// Draw removes the top card from a slice of cards and returns it.
+// If the slice of cards is empty, it returns a nil card.
+func Draw(cards *[]*Card) *Card {
+	if len(*cards) == 0 {
+		return nil
+	}
+	retCard := (*cards)[0]
+	*cards = (*cards)[1:]
+	return retCard
+}
+
 // Shuffle shuffles the given cards
 func Shuffle(cards []*Card) {
 	rand.Seed(uint64(time.Now().UnixNano()))

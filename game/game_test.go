@@ -5,9 +5,16 @@ import (
 	"testing"
 )
 
+func TestState_noGodMode(t *testing.T) {
+	state := createGame()
+	if state.godModeEnabled {
+		t.Fatal("Don't leave god mode on by default :P")
+	}
+}
+
 func TestState_drawNewCard(t *testing.T) {
 	type fields struct {
-		field    [][]*Card
+		field    Field
 		deck     []*Card
 		selected []CardIdx
 		score    int
@@ -16,7 +23,7 @@ func TestState_drawNewCard(t *testing.T) {
 		indices []CardIdx
 	}
 	type want struct {
-		field [][]*Card
+		field Field
 		deck  []*Card
 	}
 	tests := []struct {
@@ -28,7 +35,7 @@ func TestState_drawNewCard(t *testing.T) {
 		{
 			"Basic",
 			fields{
-				field: [][]*Card{
+				field: Field{
 					{{0, 0, 0, 0}, {0, 0, 0, 1}, {0, 0, 0, 2}},
 					{{1, 0, 0, 0}, {1, 0, 0, 1}, {1, 0, 0, 2}},
 					{{2, 0, 0, 0}, {2, 0, 0, 1}, {2, 0, 0, 2}},
@@ -48,7 +55,7 @@ func TestState_drawNewCard(t *testing.T) {
 		{
 			"No cards left",
 			fields{
-				field: [][]*Card{
+				field: Field{
 					{{0, 0, 0, 0}, {0, 0, 0, 1}, {0, 0, 0, 2}},
 					{{1, 0, 0, 0}, {1, 0, 0, 1}, {1, 0, 0, 2}},
 					{{2, 0, 0, 0}, {2, 0, 0, 1}, {2, 0, 0, 2}},
@@ -57,10 +64,10 @@ func TestState_drawNewCard(t *testing.T) {
 			},
 			args{[]CardIdx{{1, 0}, {2, 2}, {0, 1}}},
 			want{
-				field: [][]*Card{
-					{{0, 0, 0, 0}, {0, 0, 0, 2}},
-					{{1, 1, 1, 1}, {1, 0, 0, 1}, {1, 0, 0, 2}},
-					{{2, 0, 0, 0}, {2, 0, 0, 1}, {2, 2, 2, 2}},
+				field: Field{
+					{{0, 0, 0, 0}, {1, 0, 0, 1}, {2, 0, 0, 1}},
+					{{0, 0, 0, 2}, {1, 0, 0, 2}, {2, 2, 2, 2}},
+					{{1, 1, 1, 1}, {2, 0, 0, 0}},
 				},
 				deck: []*Card{},
 			},
@@ -68,7 +75,7 @@ func TestState_drawNewCard(t *testing.T) {
 		{
 			"Multiple Cards missing",
 			fields{
-				field: [][]*Card{
+				field: Field{
 					{{0, 0, 0, 0}, {0, 0, 0, 1}, {0, 0, 0, 2}},
 					{{1, 0, 0, 0}, {1, 0, 0, 1}, {1, 0, 0, 2}},
 					{{2, 0, 0, 0}, {2, 0, 0, 1}, {2, 0, 0, 2}},
@@ -77,7 +84,7 @@ func TestState_drawNewCard(t *testing.T) {
 			},
 			args{[]CardIdx{{1, 0}, {2, 2}, {0, 1}}},
 			want{
-				field: [][]*Card{
+				field: Field{
 					{{0, 0, 0, 0}, {0, 0, 0, 2}},
 					{{1, 0, 0, 1}, {1, 0, 0, 2}},
 					{{2, 0, 0, 0}, {2, 0, 0, 1}},
@@ -97,7 +104,7 @@ func TestState_drawNewCard(t *testing.T) {
 			s.drawNewCard(tt.args.indices...)
 
 			if !reflect.DeepEqual(tt.want.field, s.field) {
-				t.Fatalf("Fields not equal")
+				t.Fatalf("got: \n%+v, want \n%+v", s.field, tt.want.field)
 			}
 
 			if !reflect.DeepEqual(tt.want.deck, s.deck) {

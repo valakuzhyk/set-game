@@ -139,3 +139,39 @@ func TestIsSet(t *testing.T) {
 		})
 	}
 }
+
+func TestDraw(t *testing.T) {
+	type args struct {
+		cards *[]*Card
+	}
+	type want struct {
+		card  *Card
+		cards *[]*Card
+	}
+	tests := []struct {
+		name string
+		args args
+		want want
+	}{
+		{"Nil Card", args{&[]*Card{}}, want{nil, &[]*Card{}}},
+		{"Get first card",
+			args{
+				&[]*Card{{0, 0, 0, 0}, {0, 0, 0, 1}},
+			},
+			want{
+				&Card{0, 0, 0, 0},
+				&[]*Card{{0, 0, 0, 1}},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Draw(tt.args.cards); !reflect.DeepEqual(got, tt.want.card) {
+				t.Errorf("Draw() = %v, want %v", got, tt.want)
+			}
+			if !reflect.DeepEqual(tt.args.cards, tt.want.cards) {
+				t.Errorf("Draw() = %v, want %v", tt.args.cards, tt.want.cards)
+			}
+		})
+	}
+}
