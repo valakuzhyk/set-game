@@ -20,6 +20,8 @@ type State struct {
 	selected []CardIdx
 
 	score int
+
+	godModeEnabled bool
 }
 
 func (s State) String() string {
@@ -69,18 +71,77 @@ Press any other key to continue.
 
 	// Start out with 12 cards on the field
 	return State{
-		field: [][]*Card{
-			append([]*Card{}, deck[:4]...),
-			append([]*Card{}, deck[4:8]...),
-			append([]*Card{}, deck[8:12]...),
-		},
-		deck: deck[12:],
+		field:          createField(deck[:12]),
+		deck:           deck[12:],
+		godModeEnabled: false,
 	}
+}
+
+func createField(cards []*Card) [][]*Card {
+	field := make([][]*Card, 3)
+	for i, card := range cards {
+		row := i % 3
+		field[row] = append(field[row], card)
+
+	}
+	return field
 }
 
 // WaitForKey returns an event representing the key press
 func (s State) WaitForKey() term.Event {
 	return term.PollEvent()
+}
+
+var maxColumns = 6
+var keyMap = map[string]CardIdx{
+	"q": CardIdx{Row: 0, Column: 0}, "a": CardIdx{Row: 1, Column: 0}, "z": CardIdx{Row: 2, Column: 0},
+	"w": CardIdx{Row: 0, Column: 1}, "s": CardIdx{Row: 1, Column: 1}, "x": CardIdx{Row: 2, Column: 1},
+	"e": CardIdx{Row: 0, Column: 2}, "d": CardIdx{Row: 1, Column: 2}, "c": CardIdx{Row: 2, Column: 2},
+	"r": CardIdx{Row: 0, Column: 3}, "f": CardIdx{Row: 1, Column: 3}, "v": CardIdx{Row: 2, Column: 3},
+	"t": CardIdx{Row: 0, Column: 4}, "g": CardIdx{Row: 1, Column: 4}, "b": CardIdx{Row: 2, Column: 4},
+	"y": CardIdx{Row: 0, Column: 5}, "h": CardIdx{Row: 1, Column: 5}, "n": CardIdx{Row: 2, Column: 5},
+}
+
+// HandleKeyPress handles the input from the user.
+func (s *State) HandleKeyPress(ev term.Event) {
+	if idx, ok := keyMap[string(ev.Ch)]; ok {
+		if s.isValidSelection(idx) {
+			s.Select(idx)
+		}
+	}
+	if ev.Key == term.KeySpace {
+		if s.numColumns() < maxColumns {
+			s.AddColumn()
+		} else {
+			s.RenderCards()
+			fmt.Println("I think you have enough cards already.")
+		}
+	}
+
+	if s.godModeEnabled {
+		s.godModeActions(ev)
+	}
+}
+
+func (s *State) godModeActions(ev term.Event) {
+	switch string(ev.Ch) {
+	case "1":
+		fmt.Println(s)
+	case "2":
+		if s.HasSet() {
+			fmt.Println("There is a set present")
+		} else {
+			fmt.Println("There is no set present :O")
+		}
+	case "3":
+		fmt.Println(s.GetSet())
+	case "4":
+		s.ClearSelections()
+		for _, selection := range s.GetSet() {
+			s.Select(selection)
+		}
+		fmt.Println("You lazy bum...")
+	}
 }
 
 // RenderCards prints the cards out on the command line.
@@ -110,6 +171,16 @@ func (s *State) AddColumn() {
 	return
 }
 
+func (s State) numColumns() int {
+	numColumns := 0
+	for _, row := range s.field {
+		if len(row) > numColumns {
+			numColumns = len(row)
+		}
+	}
+	return numColumns
+}
+
 // Select chooses a card
 func (s *State) Select(idx CardIdx) {
 	for i, val := range s.selected {
@@ -135,6 +206,11 @@ func (s *State) Select(idx CardIdx) {
 		fmt.Println("That's not a set :|")
 		s.selected = []CardIdx{}
 	}
+}
+
+// Check whether the column is present in the row.
+func (s State) isValidSelection(selection CardIdx) bool {
+	return selection.Column < len(s.field[selection.Row])
 }
 
 // CheckSet returns whether or not the cards at the specified indices make up a set.
@@ -181,7 +257,7 @@ outerLoop:
 func (s *State) drawNewCard(indices ...CardIdx) {
 	for _, idx := range indices {
 		row, col := idx.Row, idx.Column
-		if len(s.deck) == 0 {
+		if len(s.deck) == 0 || s.numColumns() > 4 {
 			s.field[row] = append(s.field[row][:col], s.field[row][col+1:]...)
 			continue
 		}
@@ -189,6 +265,18 @@ func (s *State) drawNewCard(indices ...CardIdx) {
 		s.deck = s.deck[1:]
 		s.field[row][col] = newCard
 	}
+	if len(s.field[0]) != len(s.field[1]) || len(s.field[1]) != len(s.field[2]) {
+		s.redistributeCards()
+	}
+}
+
+func (s *State) redistributeCards() {
+	cards := []*Card{}
+	for _, row := range s.field {
+		cards = append(cards, row...)
+	}
+
+	s.field = createField(cards)
 }
 
 func (s State) getCard(idx CardIdx) *Card {
