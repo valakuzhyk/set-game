@@ -123,8 +123,14 @@ func (s *State) godModeActions(ev term.Event) {
 			fmt.Println("There is no set present :O")
 		}
 	case "3":
+    if s.HasSet() {
+      fmt.Println(s.GetSet()[0])
+    } else {
+      fmt.Println("No hints because no set is present :O")
+    }
+  case "4":
 		fmt.Println(s.GetSet())
-	case "4":
+	case "5":
 		s.ClearSelections()
 		for _, selection := range s.GetSet() {
 			s.Select(selection)
@@ -136,6 +142,9 @@ func (s *State) godModeActions(ev term.Event) {
 // RenderCards prints the cards out on the command line.
 func (s State) RenderCards() {
 	term.Sync()
+  if s.godModeEnabled {
+    fmt.Println("1: Debug    2: Is there a set    3: Hint    4: See answer    5: Play answer")
+  }
 	cardPrinter := CreateCardPrinter(s.field, s.selected)
 	cardPrinter.PrintCardString()
 	fmt.Printf("Your score: %d\n", s.score)
