@@ -115,36 +115,45 @@ func (s *State) HandleKeyPress(ev term.Event) {
 func (s *State) godModeActions(ev term.Event) {
 	switch string(ev.Ch) {
 	case "1":
+		s.RenderCards()
 		fmt.Println(s)
 	case "2":
+		s.RenderCards()
 		if s.HasSet() {
 			fmt.Println("There is a set present")
 		} else {
 			fmt.Println("There is no set present :O")
 		}
 	case "3":
-    if s.HasSet() {
-      fmt.Println(s.GetSet()[0])
-    } else {
-      fmt.Println("No hints because no set is present :O")
-    }
-  case "4":
+		s.RenderCards()
+		if s.HasSet() {
+			fmt.Println(s.GetSet()[0])
+		} else {
+			fmt.Println("No hints because no set is present :O")
+		}
+	case "4":
+		s.RenderCards()
 		fmt.Println(s.GetSet())
 	case "5":
-		s.ClearSelections()
-		for _, selection := range s.GetSet() {
-			s.Select(selection)
+		if s.HasSet() {
+			s.ClearSelections()
+			for _, selection := range s.GetSet() {
+				s.Select(selection)
+			}
+			fmt.Println("You lazy bum...")
+		} else {
+			s.RenderCards()
+			fmt.Println("There is no set present :O")
 		}
-		fmt.Println("You lazy bum...")
 	}
 }
 
 // RenderCards prints the cards out on the command line.
 func (s State) RenderCards() {
 	term.Sync()
-  if s.godModeEnabled {
-    fmt.Println("1: Debug    2: Is there a set    3: Hint    4: See answer    5: Play answer")
-  }
+	if s.godModeEnabled {
+		fmt.Println("1: Debug    2: Is there a set    3: Hint    4: See answer    5: Play answer")
+	}
 	cardPrinter := CreateCardPrinter(s.field, s.selected)
 	cardPrinter.PrintCardString()
 	fmt.Printf("Your score: %d\n", s.score)
@@ -251,9 +260,7 @@ func (s *State) drawNewCard(indices ...CardIdx) {
 		newCard := Draw(&s.deck)
 		s.field.ReplaceCardAt(idx, newCard)
 	}
-	if len(s.field[0]) != len(s.field[1]) || len(s.field[1]) != len(s.field[2]) {
-		s.field.RedistributeCards()
-	}
+	s.field.RedistributeCards()
 }
 
 func (s State) getCard(idx CardIdx) *Card {

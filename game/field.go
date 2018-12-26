@@ -1,6 +1,8 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Field comprises the cards that are visible to the players.
 type Field [][]*Card
@@ -19,19 +21,26 @@ func (f Field) String() string {
 // CreateField creates an evenly distributed field with the given cards.
 func CreateField(cards []*Card) Field {
 	field := Field(make([][]*Card, 3))
-	for i, card := range cards {
-		row := i % 3
-		field[row] = append(field[row], card)
+	oneThird := (2 + len(cards)) / 3
+	twoThirds := oneThird + (1+len(cards))/3
+	field[0] = append(field[0], cards[0:oneThird]...)
+	field[1] = append(field[1], cards[oneThird:twoThirds]...)
+	field[2] = append(field[2], cards[twoThirds:]...)
 
-	}
 	return field
 }
 
 // RedistributeCards ensures that rows are as even as possible.
 func (f *Field) RedistributeCards() {
 	cards := []*Card{}
-	for _, row := range *f {
-		cards = append(cards, row...)
+	for i, row := range *f {
+		for j := range row {
+			card := (*f)[i][j]
+			if card == nil {
+				continue
+			}
+			cards = append(cards, card)
+		}
 	}
 
 	*f = CreateField(cards)
@@ -52,9 +61,5 @@ func (f Field) NumColumns() int {
 // at the given index
 func (f *Field) ReplaceCardAt(idx CardIdx, newCard *Card) {
 	row, col := idx.Row, idx.Column
-	if newCard != nil {
-		(*f)[row][col] = newCard
-	} else {
-		(*f)[row] = append((*f)[row][:col], (*f)[row][col+1:]...)
-	}
+	(*f)[row][col] = newCard
 }
