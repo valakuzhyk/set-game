@@ -22,6 +22,8 @@ type State struct {
 	score int
 
 	godModeEnabled bool
+
+  hintIndex int
 }
 
 func (s State) String() string {
@@ -127,7 +129,12 @@ func (s *State) godModeActions(ev term.Event) {
 	case "3":
 		s.RenderCards()
 		if s.HasSet() {
-			fmt.Println(s.GetSet()[0])
+			fmt.Println(s.GetSet()[s.hintIndex])
+      if s.hintIndex < 2 {
+        s.hintIndex++
+      } else {
+        s.hintIndex = 0
+      }
 		} else {
 			fmt.Println("No hints because no set is present :O")
 		}
